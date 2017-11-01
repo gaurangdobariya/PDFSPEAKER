@@ -1,6 +1,8 @@
 package com.example.gaurang.pdfspeaker;
+
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +12,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,14 +20,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.github.barteksc.pdfviewer.PDFView;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
-import android.support.v7.app.AppCompatActivity;
-import com.github.barteksc.pdfviewer.PDFView;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+
 import static android.content.Intent.ACTION_OPEN_DOCUMENT;
 
 
@@ -41,14 +46,33 @@ public class MainActivity extends AppCompatActivity {
     public File dir, myfile = null;
     public ArrayList<Integer> bookmarks;
     String bookmark;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // et = (EditText) findViewById(R.id.editText1);
         Intent rcv = getIntent();
         int page = rcv.getIntExtra("page", 0);
         String path = rcv.getStringExtra("path_rtrn");
+
+        String st=getIntent().getDataString();
+        if(st!=null){
+            Uri ur=getIntent().getData();
+
+            Toast.makeText(MainActivity.this,ur.toString(), Toast.LENGTH_SHORT).show();
+
+            // pdfView.fromUri(ur).load();
+           /* Toast.makeText(MainActivity.this,getIntent().getData().toString(), Toast.LENGTH_SHORT).show();
+            String tpath=ur.getLastPathSegment();
+             tpath = "/" + tpath;
+            File dir = Environment.getExternalStorageDirectory();
+            Toast.makeText(this,dir.toString(),Toast.LENGTH_SHORT).show();
+            myfile = new File(tpath);
+            pdfView.fromFile(myfile).load();*/
+        }
+        Toast.makeText(MainActivity.this,st, Toast.LENGTH_SHORT).show();
+
+
 
         speak = (Button) findViewById(R.id.speak);
         stop = (Button) findViewById(R.id.stop);
@@ -58,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         bookmarks = new ArrayList<>();
 
         dir = Environment.getExternalStorageDirectory();
-        ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
+        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
 
         tts = new TextToSpeech(MainActivity.this, new TextToSpeech.OnInitListener() {
 
@@ -82,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
         speak.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             //   Toast.makeText(MainActivity.this, "after 1111reader object" + String.valueOf(myfile), Toast.LENGTH_SHORT).show();
 
                 try {
                     reader = new PdfReader(String.valueOf(myfile));
@@ -126,8 +149,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-
     }
 
     @Override
@@ -167,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                                  Intent resultData) {
 
         Toast.makeText(this, "Uri: ", Toast.LENGTH_SHORT).show();
+
       /*rrrr  if ( resultCode == Activity.RESULT_OK && resultData!=null) {
                 return;
         }
@@ -184,19 +206,18 @@ public class MainActivity extends AppCompatActivity {
             return;
         } else {
             uri = resultData.getData();
-
             pdfView.fromUri(uri).load();
-
+              Toast.makeText(this,uri.toString(),Toast.LENGTH_SHORT).show();
             String path = uri.getLastPathSegment();
+            Toast.makeText(this,path.toString(),Toast.LENGTH_SHORT).show();
 
             String final_name = uri.getLastPathSegment();
             final_name = final_name.replace("primary:", "");
             final_name = "/" + final_name;
             File dir = Environment.getExternalStorageDirectory();
+            Toast.makeText(this,dir.toString(),Toast.LENGTH_SHORT).show();
             myfile = new File(dir, final_name);
         }
-
-
         super.onActivityResult(requestCode, resultCode, resultData);
 
     }
@@ -238,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
         tts.stop();
 
     }
+
     public void file_chooser() {
         Intent intent = new Intent(ACTION_OPEN_DOCUMENT);
         intent.setType("application/pdf");
@@ -250,29 +272,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void add_bookmark() {
-        Toast.makeText(this, "add bookmark. "+myfile.toString()+"", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "add bookmark. " + myfile.toString() + "", Toast.LENGTH_SHORT).show();
         int pg_no = pdfView.getCurrentPage() + 1;
-       bookmark=myfile.toString()+"+"+String.valueOf(pg_no);
+        bookmark = myfile.toString() + "+" + String.valueOf(pg_no);
         bookmarks.add(pg_no);
         //shered preferances
-        SharedPreferences sp=getSharedPreferences("bookmark", Context.MODE_PRIVATE);
-        SharedPreferences.Editor ed=sp.edit();
-        ed.putString(bookmark,String.valueOf(pg_no));
+        SharedPreferences sp = getSharedPreferences("bookmark", Context.MODE_PRIVATE);
+        SharedPreferences.Editor ed = sp.edit();
+        ed.putString(bookmark, String.valueOf(pg_no));
         ed.commit();
     }
 
- public void view_bookmark() {
-        Intent intent = new Intent(MainActivity.this,BookmarkList.class);
-       // SharedPreferences sp=getSharedPreferences("bookmark", Context.MODE_PRIVATE);
-       // intent.putIntegerArrayListExtra("bookmark list", bookmarks);
+    public void view_bookmark() {
+        Intent intent = new Intent(MainActivity.this, BookmarkList.class);
+        // SharedPreferences sp=getSharedPreferences("bookmark", Context.MODE_PRIVATE);
+        // intent.putIntegerArrayListExtra("bookmark list", bookmarks);
         intent.putExtra("path", myfile.toString());
         startActivity(intent);
-
-        // Toast.makeText(this, "Bookmark List..", Toast.LENGTH_SHORT).show();
     }
-
-
-
 }
 
 
