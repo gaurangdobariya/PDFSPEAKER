@@ -1,10 +1,15 @@
 package com.example.gaurang.pdfspeaker;
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.ActivityCompat;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -12,27 +17,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Locale;
 import android.support.v7.app.AppCompatActivity;
 import com.github.barteksc.pdfviewer.PDFView;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
-import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
-
-import java.util.Locale;
-
-import static android.R.attr.data;
 import static android.content.Intent.ACTION_OPEN_DOCUMENT;
-import static com.example.gaurang.pdfspeaker.R.id.pdfView;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -43,27 +36,29 @@ public class MainActivity extends AppCompatActivity {
     String text;
     EditText et;
     PDFView pdfView;
-PdfReader reader=null;
+    PdfReader reader = null;
     public Uri uri = null;
-    public File dir,myfile=null;
-
+    public File dir, myfile = null;
+    public ArrayList<Integer> bookmarks;
+    String bookmark;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // et = (EditText) findViewById(R.id.editText1);
-
-        speak=(Button) findViewById(R.id.speak);
-        stop=(Button) findViewById(R.id.stop);
-        next=(Button)findViewById(R.id.next_page);
-        prev=(Button)findViewById(R.id.prev_page);
-        pdfView = (PDFView) findViewById(R.id.pdfView);
-        File dir = Environment.getExternalStorageDirectory();
         Intent rcv = getIntent();
         int page = rcv.getIntExtra("page", 0);
         String path = rcv.getStringExtra("path_rtrn");
 
-        pdfView.fromFile(myfile).defaultPage(page - 1).load();
+        speak = (Button) findViewById(R.id.speak);
+        stop = (Button) findViewById(R.id.stop);
+        next = (Button) findViewById(R.id.next_page);
+        prev = (Button) findViewById(R.id.prev_page);
+        pdfView = (PDFView) findViewById(R.id.pdfView);
+        bookmarks = new ArrayList<>();
+
+        dir = Environment.getExternalStorageDirectory();
+        ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
 
         tts = new TextToSpeech(MainActivity.this, new TextToSpeech.OnInitListener() {
 
@@ -78,87 +73,106 @@ PdfReader reader=null;
         });
 
         if (page == 0) {
-            myfile = new File(dir, "/sample_small.pdf");
+            myfile = new File(dir, "/R1.pdf");
         } else {
             myfile = new File(path);
         }
+        pdfView.fromFile(myfile).defaultPage(page - 1).load();
 
-       // pdfView.fromAsset("R1.pdf").load();
+        // pdfView.fromAsset("R1.pdf").load();
 
-        speak.setOnClickListener(new View.OnClickListener(){
+        speak.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "speakingfirst..", Toast.LENGTH_SHORT).show();
+             //   Toast.makeText(MainActivity.this, "after 1111reader object" + String.valueOf(myfile), Toast.LENGTH_SHORT).show();
 
                 try {
                     reader = new PdfReader(String.valueOf(myfile));
-                    int pn= pdfView.getCurrentPage();
-                    Toast.makeText(MainActivity.this, "speakingfirst..", Toast.LENGTH_SHORT).show();
-
-                    String text = PdfTextExtractor.getTextFromPage(reader, pn + 1).trim(); //Extracting the content from the different pages
-                    Toast.makeText(MainActivity.this, "speaking..", Toast.LENGTH_SHORT).show();
-                    tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+                    Toast.makeText(MainActivity.this, "after reader object" + String.valueOf(myfile), Toast.LENGTH_SHORT).show();
+                    int aa = pdfView.getCurrentPage();
+                    try {
+                        String text = PdfTextExtractor.getTextFromPage(reader, aa + 1).trim(); //Extracting the content from the different pages
+                        Toast.makeText(MainActivity.this, "speaking..", Toast.LENGTH_SHORT).show();
+                        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
         });
-
         stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (tts.isSpeaking()) {
-                    Toast.makeText(MainActivity.this,"stoping tts", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "stoping tts", Toast.LENGTH_SHORT).show();
                     tts.stop();
                 } else {
                     Toast.makeText(MainActivity.this, "not speaking at all!!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pdfView.jumpTo(pdfView.getCurrentPage() + 1);
+            }
+        });
+
+        prev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pdfView.jumpTo(pdfView.getCurrentPage() - 1);
+
+            }
+        });
 
 
     }
+
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
+    public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId())
-        {
+        switch (item.getItemId()) {
             case R.id.open:
                 file_chooser();
-                 return true;
+                return true;
 
             case R.id.bookmark:
-                Toast.makeText(MainActivity.this, "Save is Selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, "Save is Selected", Toast.LENGTH_SHORT).show();
+                add_bookmark();
                 return true;
 
             case R.id.bookmarklist:
-                Toast.makeText(MainActivity.this, "Search is Selected", Toast.LENGTH_SHORT).show();
+              //  Toast.makeText(MainActivity.this, "Search is Selected", Toast.LENGTH_SHORT).show();
+                view_bookmark();
                 return true;
 
             case R.id.jump:
-                Toast.makeText(MainActivity.this, "Search is Selected", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(MainActivity.this, "Search is Selected", Toast.LENGTH_SHORT).show();
+                goto_homepage();
                 return true;
 
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
 
-       Toast.makeText(this,"Uri: ",Toast.LENGTH_SHORT).show();
-      /*  if ( resultCode == Activity.RESULT_OK && resultData!=null) {
+        Toast.makeText(this, "Uri: ", Toast.LENGTH_SHORT).show();
+      /* if ( resultCode == Activity.RESULT_OK && resultData!=null) {
                 return;
         }
         uri = resultData.getData();
@@ -192,6 +206,32 @@ PdfReader reader=null;
 
     }
 
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(MainActivity.this, "Permission denied to read your External storage", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+        //  }
+
   /*  private void ConvertTextToSpeech() {
         text = "hello";
 
@@ -204,15 +244,50 @@ PdfReader reader=null;
     }*/
 
 
-    public void file_chooser(){
+    public void file_chooser() {
         Intent intent = new Intent(ACTION_OPEN_DOCUMENT);
         intent.setType("application/pdf");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(Intent.createChooser(intent, "Select a file"),FILE_SELECT_CODE);
+        startActivityForResult(Intent.createChooser(intent, "Select a file"), FILE_SELECT_CODE);
+    }
+    public void goto_homepage() {
+        //Toast.makeText(this, "go to Homepage..", Toast.LENGTH_LONG).show();
+        pdfView.jumpTo(0);
+    }
+
+    public void add_bookmark() {
+        Toast.makeText(this, "add bookmark. "+myfile.toString()+"", Toast.LENGTH_SHORT).show();
+        int pg_no = pdfView.getCurrentPage() + 1;
+       bookmark=myfile.toString()+"+"+String.valueOf(pg_no);
+        bookmarks.add(pg_no);
+        //shered preferances
+        SharedPreferences sp=getSharedPreferences("bookmark", Context.MODE_PRIVATE);
+        SharedPreferences.Editor ed=sp.edit();
+        ed.putString(bookmark,String.valueOf(pg_no));
+        ed.commit();
+        //sp finish
+        Toast.makeText(this,"value of bookmark"+sp.getString(bookmark,"hello"),Toast.LENGTH_SHORT).show();
+
+        Toast.makeText(this, "Bookmark added" + bookmark, Toast.LENGTH_SHORT).show();
+    }
+
+    public void view_bookmark() {
+        // Toast.makeText(this, "Bookmarks " + bookmarks, Toast.LENGTH_SHORT).show();
+
+
+        Intent intent = new Intent(MainActivity.this,BookmarkList.class);
+       // SharedPreferences sp=getSharedPreferences("bookmark", Context.MODE_PRIVATE);
+       // intent.putIntegerArrayListExtra("bookmark list", bookmarks);
+        intent.putExtra("path", myfile.toString());
+        startActivity(intent);
+
+        // Toast.makeText(this, "Bookmark List..", Toast.LENGTH_SHORT).show();
     }
 
 
+
 }
+
 
 
 
