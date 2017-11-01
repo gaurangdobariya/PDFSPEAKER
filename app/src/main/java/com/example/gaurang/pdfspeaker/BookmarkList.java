@@ -101,10 +101,5 @@ public class BookmarkList extends AppCompatActivity {
         });
 
     }
-    public void onDestroy() {
-
-        super.onDestroy();
-
-    }
 
 }

@@ -64,9 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onInit(int status) {
-                // TODO Auto-generated method stub
                 if (status == TextToSpeech.SUCCESS) {
-                    //int result =
                     tts.setLanguage(Locale.US);
                 }
             }
@@ -148,17 +146,14 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.bookmark:
-                //Toast.makeText(MainActivity.this, "Save is Selected", Toast.LENGTH_SHORT).show();
                 add_bookmark();
                 return true;
 
             case R.id.bookmarklist:
-              //  Toast.makeText(MainActivity.this, "Search is Selected", Toast.LENGTH_SHORT).show();
                 view_bookmark();
                 return true;
 
             case R.id.jump:
-               // Toast.makeText(MainActivity.this, "Search is Selected", Toast.LENGTH_SHORT).show();
                 goto_homepage();
                 return true;
 
@@ -172,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                                  Intent resultData) {
 
         Toast.makeText(this, "Uri: ", Toast.LENGTH_SHORT).show();
-      /* if ( resultCode == Activity.RESULT_OK && resultData!=null) {
+      /*rrrr  if ( resultCode == Activity.RESULT_OK && resultData!=null) {
                 return;
         }
         uri = resultData.getData();
@@ -209,8 +204,6 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
-
-                // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
@@ -225,12 +218,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
-        //  }
 
   /*  private void ConvertTextToSpeech() {
         text = "hello";
@@ -243,15 +232,20 @@ public class MainActivity extends AppCompatActivity {
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
     }*/
 
+    public void onDestroy() {
 
+        super.onDestroy();
+        tts.stop();
+
+    }
     public void file_chooser() {
         Intent intent = new Intent(ACTION_OPEN_DOCUMENT);
         intent.setType("application/pdf");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(Intent.createChooser(intent, "Select a file"), FILE_SELECT_CODE);
     }
+
     public void goto_homepage() {
-        //Toast.makeText(this, "go to Homepage..", Toast.LENGTH_LONG).show();
         pdfView.jumpTo(0);
     }
 
@@ -265,16 +259,9 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor ed=sp.edit();
         ed.putString(bookmark,String.valueOf(pg_no));
         ed.commit();
-        //sp finish
-        Toast.makeText(this,"value of bookmark"+sp.getString(bookmark,"hello"),Toast.LENGTH_SHORT).show();
-
-        Toast.makeText(this, "Bookmark added" + bookmark, Toast.LENGTH_SHORT).show();
     }
 
-    public void view_bookmark() {
-        // Toast.makeText(this, "Bookmarks " + bookmarks, Toast.LENGTH_SHORT).show();
-
-
+ public void view_bookmark() {
         Intent intent = new Intent(MainActivity.this,BookmarkList.class);
        // SharedPreferences sp=getSharedPreferences("bookmark", Context.MODE_PRIVATE);
        // intent.putIntegerArrayListExtra("bookmark list", bookmarks);
