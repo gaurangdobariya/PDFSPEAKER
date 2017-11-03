@@ -10,10 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class BookmarkList extends AppCompatActivity {
@@ -21,32 +18,19 @@ public class BookmarkList extends AppCompatActivity {
 
     ListView listView;
     String path_1;
-    ArrayList<Integer> received_list;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bookmark_list);
         listView = (ListView) findViewById(R.id.bookmark_text_view);
         Intent i = this.getIntent();
-       /* temp..........if (getIntent().getIntegerArrayListExtra("bookmark list") != null) {
-            // Toast.makeText(this, "in if", Toast.LENGTH_SHORT).show();
 
-            received_list = i.getIntegerArrayListExtra("bookmark list");
-*/
-            path_1 = i.getStringExtra("path");/*
-            //Toast.makeText(this, "receive path" + path_1, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "NULL", Toast.LENGTH_SHORT).show();
-       }*/
+            path_1 = i.getStringExtra("path");
         SharedPreferences prefs = this.getSharedPreferences("bookmark", Context.MODE_PRIVATE);
         Map<String,?> map = prefs.getAll();
         ArrayList<String> result = new ArrayList(map.keySet());
 
-       /* temp....... Integer ary[] = new Integer[received_list.size()];
-        for (int ii = 0; ii < received_list.size(); ii++) {
-            ary[ii] = received_list.get(ii);
-            //   Toast.makeText(BookmarkList.this, "ary : " + ary[ii], Toast.LENGTH_SHORT).show();
-        }*/
+
        String ary[]=new String[result.size()];
         for (int ii = 0; ii < result.size(); ii++) {
             ary[ii] = result.get(ii);
@@ -83,11 +67,6 @@ public class BookmarkList extends AppCompatActivity {
                 TextView tv = (TextView) view.findViewById(android.R.id.text1);
 
                 String temp=tv.getText().toString();
-              // no neeeded more...
-                // int t=path_1.length();
-              //  t=t+1;
-              //  String tv1=temp.substring(t,temp.length());
-               //int page = Integer.parseInt(tv1);
                 int page=Integer.parseInt(temp);
                 Intent intent_return = new Intent(BookmarkList.this, MainActivity.class);
                 intent_return.putExtra("page", page);

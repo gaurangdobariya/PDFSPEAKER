@@ -55,24 +55,24 @@ public class MainActivity extends AppCompatActivity {
         int page = rcv.getIntExtra("page", 0);
         String path = rcv.getStringExtra("path_rtrn");
 
-        String st=getIntent().getDataString();
+       /* String st=getIntent().getDataString();
         if(st!=null){
             Uri ur=getIntent().getData();
 
             Toast.makeText(MainActivity.this,ur.toString(), Toast.LENGTH_SHORT).show();
 
             // pdfView.fromUri(ur).load();
-           /* Toast.makeText(MainActivity.this,getIntent().getData().toString(), Toast.LENGTH_SHORT).show();
+           *//* Toast.makeText(MainActivity.this,getIntent().getData().toString(), Toast.LENGTH_SHORT).show();
             String tpath=ur.getLastPathSegment();
              tpath = "/" + tpath;
             File dir = Environment.getExternalStorageDirectory();
             Toast.makeText(this,dir.toString(),Toast.LENGTH_SHORT).show();
             myfile = new File(tpath);
-            pdfView.fromFile(myfile).load();*/
+            pdfView.fromFile(myfile).load();*//*
         }
         Toast.makeText(MainActivity.this,st, Toast.LENGTH_SHORT).show();
 
-
+*/
 
         speak = (Button) findViewById(R.id.speak);
         stop = (Button) findViewById(R.id.stop);
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     reader = new PdfReader(String.valueOf(myfile));
-                    Toast.makeText(MainActivity.this, "after reader object" + String.valueOf(myfile), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MainActivity.this, "after reader object" + String.valueOf(myfile), Toast.LENGTH_SHORT).show();
                     int aa = pdfView.getCurrentPage();
                     try {
                         String text = PdfTextExtractor.getTextFromPage(reader, aa + 1).trim(); //Extracting the content from the different pages
@@ -187,21 +187,8 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
 
-        Toast.makeText(this, "Uri: ", Toast.LENGTH_SHORT).show();
+       // Toast.makeText(this, "Uri: ", Toast.LENGTH_SHORT).show();
 
-      /*rrrr  if ( resultCode == Activity.RESULT_OK && resultData!=null) {
-                return;
-        }
-        uri = resultData.getData();
-        pdfView.fromUri(uri).load();
-
-        String path = uri.getLastPathSegment();
-
-        String final_name = uri.getLastPathSegment();
-        final_name = final_name.replace("primary:", "");
-        final_name = "/" + final_name;
-        dir = Environment.getExternalStorageDirectory();
-        myfile = new File(dir, final_name);*/
         if (resultCode != Activity.RESULT_OK && resultData != null) {
             return;
         } else {
@@ -209,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
             pdfView.fromUri(uri).load();
               Toast.makeText(this,uri.toString(),Toast.LENGTH_SHORT).show();
             String path = uri.getLastPathSegment();
-            Toast.makeText(this,path.toString(),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,path.toString(),Toast.LENGTH_SHORT).show();
 
             String final_name = uri.getLastPathSegment();
             final_name = final_name.replace("primary:", "");
@@ -227,13 +214,7 @@ public class MainActivity extends AppCompatActivity {
             case 1: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
                 } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                     Toast.makeText(MainActivity.this, "Permission denied to read your External storage", Toast.LENGTH_SHORT).show();
                     finish();
                 }
@@ -242,22 +223,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-  /*  private void ConvertTextToSpeech() {
-        text = "hello";
-
-        System.out.println("gaurang: " + text);
-        if (text == null || "".equals(text)) {
-            text = "Content not available";
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-        } else
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-    }*/
-
     public void onDestroy() {
-
         super.onDestroy();
         tts.stop();
-
     }
 
     public void file_chooser() {
@@ -272,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void add_bookmark() {
-        Toast.makeText(this, "add bookmark. " + myfile.toString() + "", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Bookmark Added", Toast.LENGTH_SHORT).show();
         int pg_no = pdfView.getCurrentPage() + 1;
         bookmark = myfile.toString() + "+" + String.valueOf(pg_no);
         bookmarks.add(pg_no);
@@ -285,8 +253,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void view_bookmark() {
         Intent intent = new Intent(MainActivity.this, BookmarkList.class);
-        // SharedPreferences sp=getSharedPreferences("bookmark", Context.MODE_PRIVATE);
-        // intent.putIntegerArrayListExtra("bookmark list", bookmarks);
         intent.putExtra("path", myfile.toString());
         startActivity(intent);
     }
