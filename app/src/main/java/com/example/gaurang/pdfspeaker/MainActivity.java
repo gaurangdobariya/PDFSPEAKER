@@ -178,6 +178,10 @@ public class MainActivity extends AppCompatActivity {
                 goto_homepage();
                 return true;
 
+            case R.id.About_us:
+                goto_about();
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -237,6 +241,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void goto_homepage() {
         pdfView.jumpTo(0);
+    }
+    public void goto_about(){
+        Intent intent = new Intent(MainActivity.this,about_us.class);
+        startActivity(intent);
     }
 
     public void add_bookmark() {

@@ -19,13 +19,15 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:mimeType="application/pdf"/>
 
+                <data android:mimeType="application/pdf" />
             </intent-filter>
         </activity>
-        <activity android:name=".BookmarkList"></activity>
+        <activity android:name=".BookmarkList" />
+        <activity android:name=".about_us"></activity>
     </application>
 
 </manifest>
