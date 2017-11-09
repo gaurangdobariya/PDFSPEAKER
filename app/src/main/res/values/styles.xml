@@ -10,4 +10,6 @@
 
     <style name="pdf" parent="Theme.AppCompat.NoActionBar" />
 
+    <style name="bluedark" parent="AppTheme" />
+
 </resources>

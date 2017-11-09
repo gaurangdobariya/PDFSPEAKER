@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             uri = resultData.getData();
             pdfView.fromUri(uri).load();
-              Toast.makeText(this,uri.toString(),Toast.LENGTH_SHORT).show();
+             // Toast.makeText(this,uri.toString(),Toast.LENGTH_SHORT).show();
             String path = uri.getLastPathSegment();
             //Toast.makeText(this,path.toString(),Toast.LENGTH_SHORT).show();
 
@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
             final_name = final_name.replace("primary:", "");
             final_name = "/" + final_name;
             File dir = Environment.getExternalStorageDirectory();
-            Toast.makeText(this,dir.toString(),Toast.LENGTH_SHORT).show();
+           // Toast.makeText(this,dir.toString(),Toast.LENGTH_SHORT).show();
             myfile = new File(dir, final_name);
         }
         super.onActivityResult(requestCode, resultCode, resultData);
